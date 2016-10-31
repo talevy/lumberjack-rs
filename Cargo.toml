@@ -1,0 +1,20 @@
+[package]
+name = "lumberjack"
+version = "0.1.0"
+authors = ["Tal Levy <jubboy333@gmail.com>"]
+
+[dependencies]
+byteorder = "0.5.3"
+combine = "2.0.0"
+flate2 = { version = "0.2", features = ["zlib"], default-features = false }
+futures = "0.1.1"
+net2 = "0.2"
+tokio-core = { git = "https://github.com/tokio-rs/tokio-core" }
+tokio-proto = { git = "https://github.com/tokio-rs/tokio-proto" }
+tokio-service = { git = "https://github.com/tokio-rs/tokio-service" }
+
+[dev-dependencies]
+env_logger = { version = "0.3.4", default-features = false }
+
+[replace]
+"tokio-core:0.1.0" = { git = "https://github.com/tokio-rs/tokio-core" }
