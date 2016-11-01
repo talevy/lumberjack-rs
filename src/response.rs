@@ -1,5 +1,3 @@
-use std::fmt::{self, Write};
-
 use byteorder::{BigEndian, WriteBytesExt};
 use tokio_core::easy::Serialize;
 
@@ -10,15 +8,10 @@ pub struct Response {
 pub struct Serializer;
 
 impl Response {
-    pub fn new() -> Self {
+    pub fn new(sequence: u32) -> Self {
         Response {
-            sequence: 0
+            sequence: sequence
         }
-    }
-
-    pub fn sequence(mut self, sequence: u32) -> Self {
-        self.sequence = sequence;
-        self
     }
 }
 

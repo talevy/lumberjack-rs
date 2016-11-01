@@ -7,6 +7,7 @@ extern crate tokio_core;
 extern crate tokio_proto;
 extern crate tokio_service;
 
+mod protocol;
 mod request;
 mod response;
 
