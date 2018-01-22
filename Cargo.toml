@@ -1,20 +1,24 @@
 [package]
 name = "lumberjack"
 version = "0.1.0"
-authors = ["Tal Levy <jubboy333@gmail.com>"]
+authors = ["Tal Levy <jubboy333@gmail.com>",
+           "Lloyd Chan <lloydmeta@gmail.com>"]
+license = "MIT OR Apache-2.0"
+description = """
+An implementation of the Lumberjack v2 protocol in Rust
+"""
 
 [dependencies]
 byteorder = "0.5.3"
 combine = "2.0.0"
 flate2 = { version = "0.2", features = ["zlib"], default-features = false }
-futures = "0.1.1"
+futures = "0.1.17"
 net2 = "0.2"
-tokio-core = { git = "https://github.com/tokio-rs/tokio-core" }
-tokio-proto = { git = "https://github.com/tokio-rs/tokio-proto" }
-tokio-service = { git = "https://github.com/tokio-rs/tokio-service" }
+tokio-core = "0.1"
+tokio-proto = "0.1"
+tokio-service = "0.1"
+tokio-io = "0.1"
+bytes = "0.4"
 
 [dev-dependencies]
 env_logger = { version = "0.3.4", default-features = false }
-
-[replace]
-"tokio-core:0.1.0" = { git = "https://github.com/tokio-rs/tokio-core" }

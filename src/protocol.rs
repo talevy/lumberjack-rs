@@ -1,6 +1,7 @@
 use std::io::Read;
+use std::io;
 use byteorder::{BigEndian, ByteOrder};
-use combine::{many, parser, Parser, ParseResult};
+use combine::{many, parser, ParseResult, Parser};
 use combine::combinator::FnParser;
 use combine::byte::byte;
 use combine::range::take;
@@ -30,29 +31,33 @@ const PROTO_VERSION: u8 = b'2';
 
 pub struct Event {
     pub sequence: usize,
-    pub raw: String
+    pub raw: String,
 }
 
 impl Event {
     pub fn new(seq: usize, raw: &[u8]) -> Self {
         Event {
             sequence: seq,
-            raw: String::from_utf8_lossy(raw).into_owned()
+            raw: String::from_utf8_lossy(raw).into_owned(),
         }
     }
 }
 
-pub fn read_batch(data: &[u8]) -> Vec<Event> {
+pub fn read_batch(data: &[u8]) -> Result<Vec<Event>, io::Error> {
     byte(PROTO_VERSION)
         .with(byte(CODE_WINDOW_SIZE))
         .with(any_num())
         .with(compressed_block())
         .parse(data)
-        .map(|(e, _)| {
+        .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "Failed to parse batch"))
+        .and_then(|(e, _)| {
             many(event_block())
                 .parse(e.as_slice())
-                .expect("unable to parse event block").0
-        }).expect("unable to parse batch")
+                .map(|v| v.0)
+                .map_err(|_| {
+                    io::Error::new(io::ErrorKind::InvalidData, "Failed to parse event block")
+                })
+        })
 }
 
 parser! {
@@ -68,12 +73,12 @@ parser! {
 
 parser! {
     compressed_block, Vec<u8>,
-    byte(PROTO_VERSION).with(byte(CODE_COMPRESSED)).with(any_num()).then(take).map(extract)
+    byte(PROTO_VERSION).with(byte(CODE_COMPRESSED)).with(any_num()).then(take).and_then(extract)
 }
 
-fn extract(input: &[u8]) -> Vec<u8> {
+fn extract(input: &[u8]) -> Result<Vec<u8>, io::Error> {
     let mut buf = Vec::new();
     let mut d = ZlibDecoder::new(input);
-    d.read_to_end(&mut buf).unwrap();
-    buf
+    d.read_to_end(&mut buf)?;
+    Ok(buf)
 }
