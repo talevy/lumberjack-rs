@@ -1,14 +1,16 @@
 extern crate lumberjack as lj;
 
-extern crate tokio_service;
-extern crate futures;
 extern crate env_logger;
+extern crate futures;
+extern crate tokio_service;
 
 use tokio_service::Service;
-use futures::{Async, Finished};
-use std::io;
+use futures::Finished;
 
-#[derive(Clone)]
+use std::io;
+use std::error::Error;
+use std::process::exit;
+
 struct Beat;
 
 impl Service for Beat {
@@ -21,14 +23,20 @@ impl Service for Beat {
         let resp = lj::Response::new(_request.events.len() as u32);
         futures::finished(resp)
     }
-
-    fn poll_ready(&self) -> Async<()> {
-        Async::Ready(())
-    }
 }
 
 fn main() {
-    drop(env_logger::init());
-    let addr = "0.0.0.0:5044".parse().unwrap();
-    lj::Server::new(addr).serve(Beat);
+    exit(match inner_main() {
+        Ok(_) => 0,
+        Err(err) => {
+            println!("{}", err);
+            1
+        }
+    })
+}
+
+fn inner_main() -> Result<(), Box<Error>> {
+    env_logger::init()?;
+    let addr = "0.0.0.0:5044".parse()?;
+    Ok(lj::Server::new(addr).serve(|| Ok(Beat))?)
 }
